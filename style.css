@@ -17,3 +17,16 @@ a {
   color: #e63946;
   text-decoration: none;
 }
+@media (max-width: 600px) {
+  body {
+    margin: 15px;
+  }
+
+  h1 {
+    font-size: 24px;
+  }
+
+  h2 {
+    font-size: 18px;
+  }
+}

@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>My To-Do List</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <style>
+    body { font-family: Arial, sans-serif; margin: 40px; background: #f0f0f0; }
+    li { margin: 10px 0; }
+    button { margin-left: 10px; }
+  </style>
+</head>
+<body>
+  <h1>My To-Do List</h1>
+  <input type="text" id="taskInput" placeholder="New task">
+  <button id="addButton">Add</button>
+  <ul id="taskList"></ul>
+  <p id="taskCount"></p>
+
+  <script>
+    function loadTodos() {
+      fetch('/todos')
+        .then(res => res.json())
+        .then(todos => {
+          const list = document.getElementById('taskList');
+          document.getElementById('taskCount').textContent = 'Total tasks: ' + todos.length;
+          list.innerHTML = '';
+          todos.forEach(todo => {
+            const li = document.createElement('li');
+
+            const checkbox = document.createElement('input');
+            checkbox.type = 'checkbox';
+            checkbox.checked = todo.completed === 1;
+            checkbox.addEventListener('change', () => {
+              fetch('/todos/' + todo.id, {
+                method: 'PUT',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ completed: checkbox.checked ? 1 : 0 })
+              }).then(() => loadTodos());
+            });
+            li.appendChild(checkbox);
+
+            const taskText = document.createTextNode(todo.task);
+            li.appendChild(taskText);
+
+            const deleteBtn = document.createElement('button');
+            deleteBtn.textContent = 'Delete';
+            deleteBtn.addEventListener('click', () => {
+              fetch('/todos/' + todo.id, { method: 'DELETE' })
+                .then(() => loadTodos());
+            });
+            li.appendChild(deleteBtn);
+
+            list.appendChild(li);
+          });
+        });
+    }
+
+    document.getElementById('addButton').addEventListener('click', () => {
+      const task = document.getElementById('taskInput').value;
+      if (task === "") {
+        alert("Please enter a task!");
+        return;
+      }
+      fetch('/todos', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ task: task })
+      }).then(() => {
+        document.getElementById('taskInput').value = '';
+        loadTodos();
+      });
+    });
+
+    loadTodos();
+  </script>
+</body>
+</html>
