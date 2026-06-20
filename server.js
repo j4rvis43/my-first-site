@@ -2,9 +2,11 @@ const express = require('express');
 const db = require('./database');
 const app = express();
 const port = 3000;
+const cors = require('cors');
 
 app.use(express.static('.'));
 app.use(express.json());
+app.use(cors());
 
 app.get('/todos', (req, res) => {
   const todos = db.prepare('SELECT * FROM todos').all();
